@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Room Scheduler - Basilur Tea Export</title>
+    <style>
+        :root {
+            /* Light Theme - Basilur Brand Colors */
+            --primary-gold: #d4af37;
+            --secondary-gold: #f4e4bc;
+            --dark-gold: #b8941f;
+            --basilur-green: #2d5016;
+            --light-green: #5a8033;
+            --accent-green: #7ba428;
+            --cream: #faf8f1;
+            --light-cream: #ffffff;
+            --text-dark: #2c2c2c;
+            --text-medium: #666666;
+            --border-light: #e8e5d8;
+            --shadow-light: rgba(212, 175, 55, 0.15);
+            
+            /* Dark Theme Colors */
+            --dark-bg: #1a1a1a;
+            --dark-card: #2a2a2a;
+            --dark-header: #333333;
+            --dark-text: #e8e6e0;
+            --dark-text-secondary: #b8b5a8;
+            --dark-border: #404040;
+            --dark-shadow: rgba(0, 0, 0, 0.3);
+            --dark-accent: #d4af37;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--secondary-gold) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #2c2c2c 100%);
+            color: var(--dark-text);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--light-cream);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px var(--shadow-light);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--secondary-gold);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .header {
+            background: var(--dark-header);
+            border-color: var(--dark-accent);
+            box-shadow: 0 10px 40px var(--dark-shadow);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-gold), var(--accent-green), var(--primary-gold));
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        body.dark-mode .logo {
+            filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.5));
+        }
+
+        .header h1 {
+            color: var(--basilur-green);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 4px rgba(212, 175, 55, 0.2);
+        }
+
+        body.dark-mode .header h1 {
+            color: var(--dark-accent);
+        }
+
+        .header .subtitle {
+            color: var(--light-green);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        body.dark-mode .header .subtitle {
+            color: var(--dark-text-secondary);
+        }
+
+        .date-display {
+            background: linear-gradient(135deg, var(--basilur-green), var(--light-green));
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(45, 80, 22, 0.3);
+        }
+
+        body.dark-mode .date-display {
+            background: linear-gradient(135deg, var(--dark-accent), #b8941f);
+            color: var(--dark-bg);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-gold);
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            color: white;
+            font-size: 1.2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: var(--dark-accent);
+            color: var(--dark-bg);
+        }
+
+        .container {
+            display: flex;
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .calendar-frame {
+            filter: invert(1) hue-rotate(180deg);
+            background-color: transparent;
+            border-radius: 12px;
+        }
+
+        .room-section {
+            flex: 1;
+            min-width: 350px;
+            background: var(--light-cream);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.12);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .room-section {
+            background: var(--dark-card);
+            border-color: var(--dark-border);
+            box-shadow: 0 15px 40px var(--dark-shadow);
+        }
+
+        .room-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-gold), var(--accent-green), var(--primary-gold));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .room-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(212, 175, 55, 0.18);
+        }
+
+        body.dark-mode .room-section:hover {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .room-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-gold);
+        }
+
+        body.dark-mode .room-header {
+            border-bottom-color: var(--dark-border);
+        }
+
+        .room-title {
+            color: var(--basilur-green);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(212, 175, 55, 0.1);
+        }
+
+        body.dark-mode .room-title {
+            color: var(--dark-accent);
+        }
+
+        .room-status {
+            color: var(--light-green);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode .room-status {
+            color: var(--dark-text-secondary);
+        }
+
+        .view-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .view-selector label {
+            color: var(--text-medium);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        body.dark-mode .view-selector label {
+            color: var(--dark-text-secondary);
+        }
+
+        .view-dropdown {
+            background: var(--cream);
+            border: 2px solid var(--secondary-gold);
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            color: var(--basilur-green);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            font-weight: 500;
+        }
+
+        .view-dropdown:hover {
+            border-color: var(--primary-gold);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+        }
+
+        .view-dropdown:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        body.dark-mode .view-dropdown {
+            background: var(--dark-bg);
+            border-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+
+        body.dark-mode .view-dropdown:hover {
+            border-color: var(--dark-accent);
+            box-shadow: 0 2px 8px var(--dark-shadow);
+        }
+
+        body.dark-mode .view-dropdown:focus {
+            border-color: var(--dark-accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+        }
+
+        .calendar-container {
+            height: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--secondary-gold);
+            background: var(--cream);
+            position: relative;
+        }
+
+        body.dark-mode .calendar-container {
+            border-color: var(--dark-border);
+            background: var(--dark-bg);
+        }
+
+        .calendar-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .calendar-frame.loaded {
+            opacity: 1;
+        }
+
+        .loading-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 500px;
+            background: var(--cream);
+            border-radius: 12px;
+            color: var(--light-green);
+            font-size: 1.1rem;
+            flex-direction: column;
+            gap: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        body.dark-mode .loading-placeholder {
+            background: var(--dark-card);
+            color: var(--dark-text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--secondary-gold);
+            border-top: 3px solid var(--primary-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        body.dark-mode .loading-spinner {
+            border-color: var(--dark-border);
+            border-top-color: var(--dark-accent);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-queue {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--basilur-green);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+            border: 1px solid var(--secondary-gold);
+        }
+
+        body.dark-mode .loading-queue {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--dark-text);
+            border-color: var(--dark-accent);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--light-green);
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .footer {
+            color: var(--dark-text-secondary);
+        }
+
+        .refresh-note {
+            background: rgba(122, 164, 40, 0.1);
+            color: var(--basilur-green);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            text-align: center;
+            border-left: 4px solid var(--accent-green);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
+        }
+
+        body.dark-mode .refresh-note {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--dark-text);
+            border-left-color: var(--dark-accent);
+            box-shadow: 0 4px 15px var(--dark-shadow);
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .room-section {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .room-title {
+                font-size: 1.2rem;
+            }
+            
+            .calendar-container {
+                height: 400px;
+            }
+            
+            .loading-placeholder {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+            <span id="theme-icon">🌙</span>
+        </button>
+        <div class="logo-container">
+            <img src="https://www.basilurtea.com/cdn/shop/files/Basilur.png?v=1614329016" alt="Basilur Tea Export Logo" class="logo" onerror="this.style.display='none'">
+        </div>
+        <h1>Basilur Tea Export</h1>
+        <div class="subtitle">Meeting Room Scheduler</div>
+        <div class="date-display" id="current-date"></div>
+    </div>
+
+    <div class="container">
+        <!-- Meeting Room 1 -->
+        <div class="room-section">
+            <div class="room-header">
+                <div class="room-title">BLOCK A BOARDROOM</div>
+                <div class="room-status">Schedule View</div>
+                <div class="view-selector">
+                    <label for="room1-view">View:</label>
+                    <select id="room1-view" class="view-dropdown" onchange="changeCalendarView('room1', this.value)">
+                        <option value="WEEK">Week</option>
+                        <option value="DAY">Day</option>
+                        <option value="AGENDA">Agenda</option>
+                    </select>
+                </div>
+            </div>
+            <div class="calendar-container">
+                <div class="loading-placeholder" id="room1-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading Calendar...</span>
+                    <div class="loading-queue" id="room1-queue">Position 1 in queue</div>
+                </div>
+                <iframe id="room1-calendar" class="calendar-frame" 
+                    width="100%" 
+                    height="500" 
+                    frameborder="0" 
+                    scrolling="no">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Meeting Room 2 -->
+        <div class="room-section">
+            <div class="room-header">
+                <div class="room-title">BLOCK C BOARDROOM</div>
+                <div class="room-status">Schedule View</div>
+                <div class="view-selector">
+                    <label for="room2-view">View:</label>
+                    <select id="room2-view" class="view-dropdown" onchange="changeCalendarView('room2', this.value)">
+                        <option value="WEEK">Week</option>
+                        <option value="DAY">Day</option>
+                        <option value="AGENDA">Agenda</option>
+                    </select>
+                </div>
+            </div>
+            <div class="calendar-container">
+                <div class="loading-placeholder" id="room2-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading Calendar...</span>
+                    <div class="loading-queue" id="room2-queue">Position 2 in queue</div>
+                </div>
+                <iframe id="room2-calendar" class="calendar-frame" 
+                    width="100%" 
+                    height="500" 
+                    frameborder="0" 
+                    scrolling="no">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Meeting Room 3 -->
+        <div class="room-section">
+            <div class="room-header">
+                <div class="room-title">BLOCK D AUDITORIUM</div>
+                <div class="room-status">Schedule View</div>
+                <div class="view-selector">
+                    <label for="room3-view">View:</label>
+                    <select id="room3-view" class="view-dropdown" onchange="changeCalendarView('room3', this.value)">
+                        <option value="WEEK">Week</option>
+                        <option value="DAY">Day</option>
+                        <option value="AGENDA">Agenda</option>
+                    </select>
+                </div>
+            </div>
+            <div class="calendar-container">
+                <div class="loading-placeholder" id="room3-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading Calendar...</span>
+                    <div class="loading-queue" id="room3-queue">Position 3 in queue</div>
+                </div>
+                <iframe id="room3-calendar" class="calendar-frame" 
+                    width="100%" 
+                    height="500" 
+                    frameborder="0" 
+                    scrolling="no">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="refresh-note">
+        ☕ Contact HR to Book Meeting Room
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Basilur Tea Export IT | Internal Meeting Room Management System</p>
+    </div>
+
+    <script>
+        // Calendar configurations for each room
+        const CALENDAR_CONFIGS = {
+            room1: {
+                src: '63f736da5e5f02711a5638e314055c04de30d474c2900b1cd6bcb1b78730b16b@group.calendar.google.com',
+                baseUrl: 'https://calendar.google.com/calendar/u/0/embed?height=500&wkst=1&bgcolor=%23faf8f1&ctz=Asia/Colombo&src=63f736da5e5f02711a5638e314055c04de30d474c2900b1cd6bcb1b78730b16b@group.calendar.google.com&color=%23d4af37'
+            },
+            room2: {
+                src: '9b2645c15ff2bf26afa4f475a930d3e9574713fef4a4a8159ab9a66bf644263d@group.calendar.google.com',
+                baseUrl: 'https://calendar.google.com/calendar/u/0/embed?height=500&wkst=1&bgcolor=%23faf8f1&ctz=Asia/Colombo&src=9b2645c15ff2bf26afa4f475a930d3e9574713fef4a4a8159ab9a66bf644263d@group.calendar.google.com&color=%23d4af37'
+            },
+            room3: {
+                src: '684e1405dc62238773fa5fa29151ed1142fbe5e76304177b9e9576f62279d47b@group.calendar.google.com',
+                baseUrl: 'https://calendar.google.com/calendar/u/0/embed?height=500&wkst=1&bgcolor=%23faf8f1&ctz=Asia/Colombo&src=684e1405dc62238773fa5fa29151ed1142fbe5e76304177b9e9576f62279d47b@group.calendar.google.com&color=%23d4af37'
+            }
+        };
+
+        const CALENDAR_PARAMS = "&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&showTitle=0&hl=en";
+        
+        // Sequential loading configuration
+        const LOAD_DELAY = 3000; // 3 seconds between each calendar load
+        let loadingQueue = ['room1', 'room2', 'room3'];
+        let currentlyLoading = null;
+
+        // Function to load calendar sequentially
+        function loadCalendarSequentially() {
+            if (loadingQueue.length === 0 || currentlyLoading) {
+                return;
+            }
+
+            const roomId = loadingQueue.shift();
+            currentlyLoading = roomId;
+            
+            console.log(`Loading calendar for ${roomId}...`);
+            
+            // Update queue positions for remaining rooms
+            updateQueuePositions();
+            
+            // Get saved view preference or use default
+            let viewMode = 'WEEK';
+            if (typeof(Storage) !== "undefined") {
+                viewMode = localStorage.getItem(roomId + '-view') || 'WEEK';
+            }
+            
+            // Load the calendar
+            loadSingleCalendar(roomId, viewMode);
+        }
+
+        // Function to load a single calendar
+        function loadSingleCalendar(roomId, mode = 'WEEK') {
+            const iframe = document.getElementById(roomId + '-calendar');
+            const loading = document.getElementById(roomId + '-loading');
+            const config = CALENDAR_CONFIGS[roomId];
+            
+            if (!config) {
+                console.error('Calendar configuration not found for room:', roomId);
+                handleCalendarError(roomId);
+                return;
+            }
+            
+            // Update loading message
+            const loadingSpan = loading.querySelector('span');
+            if (loadingSpan) {
+                loadingSpan.textContent = 'Loading Calendar...';
+            }
+            
+            // Build URL with selected mode
+            const calendarUrl = config.baseUrl + '&mode=' + mode + CALENDAR_PARAMS;
+            
+            console.log(`Loading ${roomId} with URL:`, calendarUrl);
+            
+            // Set up iframe load event listeners
+            iframe.onload = function() {
+                console.log(`Iframe onload triggered for ${roomId}`);
+                // Add a small delay to ensure content is rendered
+                setTimeout(() => {
+                    handleCalendarLoaded(roomId);
+                }, 500);
+            };
+            
+            iframe.onerror = function() {
+                console.log(`Iframe onerror triggered for ${roomId}`);
+                handleCalendarError(roomId);
+            };
+            
+            // Set timeout for loading - reduced to 10 seconds
+            const timeoutId = setTimeout(() => {
+                if (currentlyLoading === roomId) {
+                    console.log(`Timeout reached for ${roomId}`);
+                    handleCalendarLoaded(roomId); // Proceed anyway in case iframe loaded but didn't trigger onload
+                }
+            }, 10000); // 10 second timeout
+            
+            // Store timeout ID for cleanup
+            iframe.timeoutId = timeoutId;
+            
+            // Load the calendar
+            iframe.src = calendarUrl;
+            
+            // Update room status text
+            updateRoomStatus(roomId, mode);
+        }
+
+        // Handle successful calendar load
+        function handleCalendarLoaded(roomId) {
+            console.log(`Calendar loaded successfully for ${roomId}`);
+            
+            const iframe = document.getElementById(roomId + '-calendar');
+            const loading = document.getElementById(roomId + '-loading');
+            
+            // Clear timeout if it exists
+            if (iframe.timeoutId) {
+                clearTimeout(iframe.timeoutId);
+                delete iframe.timeoutId;
+            }
+            
+            // Hide loading placeholder and show iframe
+            if (loading) {
+                loading.style.display = 'none';
+            }
+            
+            if (iframe) {
+                iframe.classList.add('loaded');
+            }
+            
+            // Mark as no longer loading
+            if (currentlyLoading === roomId) {
+                currentlyLoading = null;
+            }
+            
+            // Load next calendar after delay
+            setTimeout(() => {
+                loadCalendarSequentially();
+            }, LOAD_DELAY);
+        }
+
+        // Handle calendar load error
+        function handleCalendarError(roomId, errorMessage = 'Calendar temporarily unavailable') {
+            console.error(`Calendar load error for ${roomId}:`, errorMessage);
+            
+            const loading = document.getElementById(roomId + '-loading');
+            
+            if (loading) {
+                loading.innerHTML = `
+                    <div style="color: var(--primary-gold); text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">⚠️</div>
+                        <div>${errorMessage}</div>
+                        <button onclick="retryCalendarLoad('${roomId}')" 
+                                style="margin-top: 15px; padding: 8px 15px; background: var(--primary-gold); 
+                                       color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            Retry Load
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Mark as no longer loading
+            if (currentlyLoading === roomId) {
+                currentlyLoading = null;
+            }
+            
+            // Continue with next calendar after delay
+            setTimeout(() => {
+                loadCalendarSequentially();
+            }, LOAD_DELAY);
+        }
+
+        // Retry loading a specific calendar
+        function retryCalendarLoad(roomId) {
+            const loading = document.getElementById(roomId + '-loading');
+            
+            // Reset loading state
+            if (loading) {
+                loading.innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <span>Retrying Calendar Load...</span>
+                `;
+                loading.style.display = 'flex';
+            }
+            
+            // Reset iframe
+            const iframe = document.getElementById(roomId + '-calendar');
+            if (iframe) {
+                iframe.classList.remove('loaded');
+                iframe.src = '';
+            }
+            
+            // Get saved view preference
+            let viewMode = 'WEEK';
+            if (typeof(Storage) !== "undefined") {
+                viewMode = localStorage.getItem(roomId + '-view') || 'WEEK';
+            }
+            
+            // Reload after a short delay
+            setTimeout(() => {
+                loadSingleCalendar(roomId, viewMode);
+            }, 1000);
+        }
+
+        // Update queue positions in UI
+        function updateQueuePositions() {
+            loadingQueue.forEach((roomId, index) => {
+                const queueElement = document.getElementById(roomId + '-queue');
+                if (queueElement) {
+                    const position = index + 1;
+                    queueElement.textContent = `Position ${position} in queue`;
+                    queueElement.style.display = 'block';
+                }
+            });
+        }
+
+        // Update room status text
+        function updateRoomStatus(roomId, mode) {
+            const statusElement = document.querySelector(`#${roomId}-calendar`).closest('.room-section').querySelector('.room-status');
+            let statusText = 'Schedule View';
+            
+            switch(mode) {
+                case 'WEEK':
+                    statusText = 'Weekly Schedule';
+                    break;
+                case 'DAY':
+                    statusText = 'Daily Schedule';
+                    break;
+                case 'AGENDA':
+                    statusText = 'Agenda View';
+                    break;
+                default:
+                    statusText = 'Schedule View';
+            }
+            
+            if (statusElement) {
+                statusElement.textContent = statusText;
+            }
+        }
+
+        // Function to change calendar view
+        function changeCalendarView(roomId, mode) {
+            // Save user preference
+            if (typeof(Storage) !== "undefined") {
+                localStorage.setItem(roomId + '-view', mode);
+            }
+            
+            // Check if calendar is already loaded
+            const iframe = document.getElementById(roomId + '-calendar');
+            if (iframe.classList.contains('loaded')) {
+                // Calendar is loaded, change view immediately
+                const loading = document.getElementById(roomId + '-loading');
+                const config = CALENDAR_CONFIGS[roomId];
+                
+                if (config) {
+                    // Show loading temporarily
+                    if (loading) {
+                        loading.style.display = 'flex';
+                        loading.innerHTML = `
+                            <div class="loading-spinner"></div>
+                            <span>Changing View...</span>
+                        `;
+                    }
+                    
+                    // Update URL and reload
+                    const newUrl = config.baseUrl + '&mode=' + mode + CALENDAR_PARAMS;
+                    console.log(`Changing view for ${roomId} to ${mode}:`, newUrl);
+                    
+                    // Set up new load handler
+                    iframe.onload = function() {
+                        console.log(`View change loaded for ${roomId}`);
+                        setTimeout(() => {
+                            if (loading) {
+                                loading.style.display = 'none';
+                            }
+                            iframe.classList.add('loaded');
+                        }, 500);
+                    };
+                    
+                    iframe.src = newUrl;
+                    
+                    // Update status
+                    updateRoomStatus(roomId, mode);
+                }
+            } else {
+                // Calendar not loaded yet, just save preference
+                // It will use the saved preference when it loads
+                updateRoomStatus(roomId, mode);
+            }
+        }
+
+        // Load saved view preferences
+        function loadViewPreferences() {
+            const rooms = ['room1', 'room2', 'room3'];
+            
+            rooms.forEach(roomId => {
+                if (typeof(Storage) !== "undefined") {
+                    const savedView = localStorage.getItem(roomId + '-view') || 'WEEK';
+                    const dropdown = document.getElementById(roomId + '-view');
+                    
+                    if (dropdown) {
+                        dropdown.value = savedView;
+                    }
+                }
+            });
+        }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                themeIcon.textContent = '☀️';
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('theme', 'dark');
+                }
+            } else {
+                themeIcon.textContent = '🌙';
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+        }
+
+        // Load saved theme or detect system preference
+        function loadTheme() {
+            const themeIcon = document.getElementById('theme-icon');
+            let shouldUseDarkMode = false;
+            
+            if (typeof(Storage) !== "undefined") {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    shouldUseDarkMode = true;
+                } else if (savedTheme === 'light') {
+                    shouldUseDarkMode = false;
+                } else {
+                    // No saved preference, check system preference
+                    shouldUseDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                }
+            } else {
+                // No localStorage support, check system preference
+                shouldUseDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            }
+            
+            if (shouldUseDarkMode) {
+                document.body.classList.add('dark-mode');
+                themeIcon.textContent = '☀️';
+            } else {
+                themeIcon.textContent = '🌙';
+            }
+        }
+
+        // Display current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Colombo'
+            };
+            const dateElement = document.getElementById('current-date');
+            if (dateElement) {
+                dateElement.textContent = 'Today: ' + now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        // Initialize page with sequential loading
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            updateCurrentDate();
+            loadViewPreferences();
+            
+            // Start sequential calendar loading after a short delay
+            setTimeout(() => {
+                console.log('Starting sequential calendar loading...');
+                loadCalendarSequentially();
+            }, 1000);
+            
+            // Optional: Auto-refresh every 10 minutes to keep calendars current
+            // Increased from 5 to 10 minutes to reduce server load
+            setInterval(function() {
+                location.reload();
+            }, 600000); // 10 minutes = 600000 milliseconds
+        });
+
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                if (typeof(Storage) === "undefined" || !localStorage.getItem('theme')) {
+                    const themeIcon = document.getElementById('theme-icon');
+                    if (e.matches) {
+                        document.body.classList.add('dark-mode');
+                        themeIcon.textContent = '☀️';
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                        themeIcon.textContent = '🌙';
+                    }
+                }
+            });
+        }
+
+        // Add visibility change listener to pause/resume loading when tab is not visible
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('Page hidden - pausing calendar operations');
+            } else {
+                console.log('Page visible - resuming calendar operations');
+                // Resume loading if there are items in queue and nothing currently loading
+                if (loadingQueue.length > 0 && !currentlyLoading) {
+                    setTimeout(() => {
+                        loadCalendarSequentially();
+                    }, 1000);
+                }
+            }
+        });
+
+        // Add error handling for iframe communication
+        window.addEventListener('message', function(event) {
+            // Handle any messages from iframes if needed
+            console.log('Received message from iframe:', event.data);
+        });
+
+        // Utility function to check if all calendars are loaded
+        function areAllCalendarsLoaded() {
+            const iframes = ['room1-calendar', 'room2-calendar', 'room3-calendar'];
+            return iframes.every(id => {
+                const iframe = document.getElementById(id);
+                return iframe && iframe.classList.contains('loaded');
+            });
+        }
+
+        // Add status indicator for overall loading state
+        function updateOverallStatus() {
+            const header = document.querySelector('.header .subtitle');
+            if (!header) return;
+            
+            if (areAllCalendarsLoaded()) {
+                header.textContent = 'Meeting Room Scheduler';
+            } else if (currentlyLoading) {
+                const roomNames = {
+                    'room1': 'Block A',
+                    'room2': 'Block C', 
+                    'room3': 'Block D'
+                };
+                header.textContent = `Loading ${roomNames[currentlyLoading] || 'Calendar'}...`;
+            } else if (loadingQueue.length > 0) {
+                header.textContent = `${loadingQueue.length} calendars in queue`;
+            }
+        }
+
+        // Monitor loading state changes
+        setInterval(updateOverallStatus, 1000);
+    </script>
+</body>
+</html>
